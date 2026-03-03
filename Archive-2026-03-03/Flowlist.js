@@ -1,7 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
 import { auth } from '../lib/firebase';
-import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile, sendPasswordResetEmail } from 'firebase/auth';
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
 import { saveAppState, loadAppState } from '../lib/db';
 
 // ─── Helpers ───
@@ -56,13 +56,13 @@ body,html{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit
 .ibtn{padding:6px 12px;background:var(--bg2);border:1px solid var(--border);border-radius:6px;color:var(--dim);font-size:12px;cursor:pointer;transition:all .2s;font-family:var(--mono);display:flex;align-items:center;gap:6px}
 .ibtn:hover{background:var(--bg3);color:var(--text);border-color:rgba(255,255,255,.1)}
 
+/* Saving indicator */
 .save-dot{width:8px;height:8px;border-radius:50%;transition:all .3s}
 .save-dot.saving{background:var(--amber);animation:blink .8s ease-in-out infinite}
 .save-dot.saved{background:var(--green)}
 .save-dot.error{background:var(--red)}
 
-.wdc{font-family:var(--mono);font-size:10px;color:var(--green);border:1px solid var(--greenbord);border-radius:4px;padding:3px 10px;background:var(--greendim);letter-spacing:.5px}
-
+/* Picker */
 .pkwrap{position:relative}
 .pkmenu{position:absolute;top:calc(100% + 8px);right:0;min-width:340px;max-height:450px;overflow-y:auto;background:var(--bg2);border:1px solid rgba(0,255,159,.15);border-radius:10px;padding:8px;z-index:100;animation:fadeIn .15s ease;box-shadow:0 8px 32px rgba(0,0,0,.6),0 0 1px rgba(0,255,159,.2)}
 .pkhat{padding:4px 10px;margin-top:10px}.pkhat:first-child{margin-top:4px}
@@ -104,10 +104,8 @@ body,html{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit
 .tchk{width:18px;height:18px;min-width:18px;border-radius:4px;border:1.5px solid rgba(255,255,255,.15);background:transparent;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s;margin-top:2px}
 .tchk:hover{border-color:rgba(255,255,255,.3)}
 .tchk.on{border-color:var(--green);background:var(--greendim)}.tchk.on::after{content:"✓";color:var(--green);font-size:11px;font-weight:700}
-.tcont{flex:1;min-width:0}
-.ttxt{font-size:13px;line-height:1.5;font-weight:400;cursor:pointer}.ttxt:hover{color:var(--green)}
-.titem.done .ttxt{text-decoration:line-through;color:var(--dim);cursor:default}.titem.done .ttxt:hover{color:var(--dim)}
-.edit-in{width:100%;background:transparent;border:none;border-bottom:1px solid var(--greenbord);color:var(--text);font-family:var(--sans);font-size:13px;line-height:1.5;outline:none;padding:1px 0;margin-bottom:2px}
+.tcont{flex:1;min-width:0}.ttxt{font-size:13px;line-height:1.5;font-weight:400}
+.titem.done .ttxt{text-decoration:line-through;color:var(--dim)}
 .tmeta{display:flex;gap:6px;margin-top:5px;font-size:10px;color:var(--dim2);font-family:var(--mono);flex-wrap:wrap;align-items:center}
 .tmeta .over{color:var(--red)}
 .badge{padding:1px 6px;border-radius:3px;font-size:9px;font-weight:600;letter-spacing:.5px;font-family:var(--mono)}
@@ -119,7 +117,6 @@ body,html{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit
 .sel:hover{border-color:rgba(255,255,255,.2);color:var(--text)}
 .sel.on{background:var(--amberdim);border-color:var(--amberbord);color:var(--amber)}
 .xbtn{background:none;border:none;color:var(--dim2);cursor:pointer;font-size:14px;padding:2px 4px;transition:color .15s;line-height:1}.xbtn:hover{color:var(--red)}
-.ebtn{background:none;border:none;color:var(--dim2);cursor:pointer;font-size:12px;padding:2px 4px;transition:color .15s;line-height:1}.ebtn:hover{color:var(--cyan)}
 
 .ptog{padding:3px 8px;border-radius:4px;border:1px solid rgba(192,132,252,.2);background:var(--purpledim);color:var(--purple);font-size:10px;cursor:pointer;font-family:var(--mono);transition:all .15s;white-space:nowrap}
 .ptog:hover{background:rgba(192,132,252,.18)}
@@ -224,6 +221,7 @@ body,html{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit
 .tc-diff{font-family:var(--mono);font-size:9px;color:var(--dim2);margin-top:2px}
 .arc-empty{text-align:center;padding:50px 20px;color:var(--dim2);font-family:var(--mono);font-size:13px}
 
+/* Auth */
 .auth{min-height:100vh;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;animation:fadeIn .6s ease}
 .auth-card{width:100%;max-width:380px;text-align:center}
 .auth-brand{display:flex;flex-direction:column;align-items:center;margin-bottom:16px}
@@ -238,7 +236,6 @@ body,html{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit
 .auth-switch{margin-top:16px;font-family:var(--mono);font-size:12px;color:var(--dim)}
 .auth-switch button{background:none;border:none;color:var(--green);font-family:var(--mono);font-size:12px;cursor:pointer;text-decoration:underline}
 .auth-err{font-family:var(--mono);font-size:11px;color:var(--red);margin-top:8px;margin-bottom:8px}
-.auth-ok{font-family:var(--mono);font-size:11px;color:var(--green);margin-top:8px;margin-bottom:8px}
 .auth-loading{font-family:var(--mono);font-size:13px;color:var(--dim);margin-top:20px}
 .signout-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:4px 10px;color:var(--dim2);font-family:var(--mono);font-size:10px;cursor:pointer;transition:all .15s}
 .signout-btn:hover{color:var(--red);border-color:rgba(255,95,95,.3)}
@@ -246,7 +243,7 @@ body,html{font-family:var(--sans);background:var(--bg);color:var(--text);-webkit
 @media(max-width:767px){.wrap{padding:14px}.hdr{padding:14px 0 20px}.greet{font-size:20px}.hcard{padding:16px}.tab{padding:5px 10px;font-size:11px}.summary{padding:14px;gap:16px}.sc{padding:14px 18px;min-width:90px}.sc-big{font-size:24px}.pkmenu{min-width:280px;right:-40px}.timer{font-size:32px!important}}
 `;
 
-// ─── Sub Components ───
+// ─── Sub Components (same logic as v4, inline) ───
 function SubTodoList({todo,hatId,onToggleSub,onSelectSub,onAddSub,mode,dayStarted}){
   const[nt,sNt]=useState("");const[nm,sNm]=useState("30");
   const dc=todo.subTodos.filter(s=>s.done).length;const pct=todo.subTodos.length>0?(dc/todo.subTodos.length)*100:0;
@@ -256,30 +253,12 @@ function SubTodoList({todo,hatId,onToggleSub,onSelectSub,onAddSub,mode,dayStarte
     <div className="addsub"><input placeholder="Sub-task..." value={nt} onChange={e=>sNt(e.target.value)} onKeyDown={e=>e.key==='Enter'&&add()}/><input placeholder="m" type="number" value={nm} onChange={e=>sNm(e.target.value)} style={{width:48,flex:'none'}}/><button className="mbtn" style={{background:'var(--purpledim)',color:'var(--purple)'}} onClick={add}>+</button></div></div>);
 }
 
-function TodoItem({todo,hat,mode,dayStarted,onToggle,onSelect,onArchive,onToggleSub,onSelectSub,onAddSub,onEdit}){
-  const[exp,setExp]=useState(false);
-  const[editing,setEditing]=useState(false);
-  const[editText,setEditText]=useState(todo.text);
-  const isProj=todo.minutes>=120;const du=daysUntil(todo.dueDate);const isOver=du.includes("overdue");
-  const saveEdit=()=>{
-    const trimmed=editText.trim();
-    if(trimmed&&trimmed!==todo.text)onEdit(hat.id,todo.id,trimmed);
-    else setEditText(todo.text);
-    setEditing(false);
-  };
+function TodoItem({todo,hat,mode,dayStarted,onToggle,onSelect,onArchive,onToggleSub,onSelectSub,onAddSub}){
+  const[exp,setExp]=useState(false);const isProj=todo.minutes>=120;const du=daysUntil(todo.dueDate);const isOver=du.includes("overdue");
   return(<div><div className={`titem ${todo.done?'done':''}`}>
     {!isProj?(<div className={`tchk ${todo.done?'on':''}`} onClick={()=>onToggle(todo.id)} style={todo.done?{}:{borderColor:hat.color+'30'}}/>):(<button className="ptog" onClick={()=>setExp(!exp)}>{exp?'▾':'▸'} {todo.subTodos.filter(s=>s.done).length}/{todo.subTodos.length}</button>)}
-    <div className="tcont">
-      {editing
-        ?<input className="edit-in" value={editText} autoFocus onChange={e=>setEditText(e.target.value)} onBlur={saveEdit} onKeyDown={e=>{if(e.key==='Enter')saveEdit();if(e.key==='Escape'){setEditText(todo.text);setEditing(false)}}}/>
-        :<div className="ttxt" onClick={()=>!todo.done&&setEditing(true)}>{todo.text}</div>}
-      <div className="tmeta"><span className={isOver?'over':''}>{du}</span><span>{todo.minutes}m</span>{isProj&&<span className="badge b-proj">PROJECT</span>}{!isProj&&todo.selectedToday&&<span className="badge b-today">TODAY</span>}{todo.timeSpent>0&&<span className="badge b-time">{fmtMins(Math.round(todo.timeSpent/60))}</span>}{todo.done&&todo.actualTime!==null&&<span className="badge b-time">done {fmtMins(Math.round(todo.actualTime/60))}</span>}</div>
-    </div>
-    <div className="tacts">
-      {mode==='plan'&&!isProj&&!todo.done&&dayStarted&&(<button className={`sel ${todo.selectedToday?'on':''}`} onClick={()=>onSelect(todo.id)}>{todo.selectedToday?'✓ today':'+ today'}</button>)}
-      {!todo.done&&!editing&&<button className="ebtn" title="Edit" onClick={()=>setEditing(true)}>✎</button>}
-      <button className="xbtn" title="Archive" onClick={()=>onArchive(hat.id,todo.id)}>×</button>
-    </div>
+    <div className="tcont"><div className="ttxt">{todo.text}</div><div className="tmeta"><span className={isOver?'over':''}>{du}</span><span>{todo.minutes}m</span>{isProj&&<span className="badge b-proj">PROJECT</span>}{!isProj&&todo.selectedToday&&<span className="badge b-today">TODAY</span>}{todo.timeSpent>0&&<span className="badge b-time">{fmtMins(Math.round(todo.timeSpent/60))}</span>}{todo.done&&todo.actualTime!==null&&<span className="badge b-time">done {fmtMins(Math.round(todo.actualTime/60))}</span>}</div></div>
+    <div className="tacts">{mode==='plan'&&!isProj&&!todo.done&&dayStarted&&(<button className={`sel ${todo.selectedToday?'on':''}`} onClick={()=>onSelect(todo.id)}>{todo.selectedToday?'✓ today':'+ today'}</button>)}<button className="xbtn" title="Archive" onClick={()=>onArchive(hat.id,todo.id)}>×</button></div>
   </div>{isProj&&exp&&<SubTodoList todo={todo} hatId={hat.id} mode={mode} dayStarted={dayStarted} onToggleSub={onToggleSub} onSelectSub={onSelectSub} onAddSub={onAddSub}/>}</div>);
 }
 
@@ -289,10 +268,10 @@ function AddTodoForm({onAdd,onCancel}){
   return(<div className="aform"><input ref={r} placeholder="What needs to be done?" value={t} onChange={e=>sT(e.target.value)} onKeyDown={e=>e.key==='Enter'&&go()}/><div className="afrow"><input type="number" placeholder="Minutes (30)" value={m} onChange={e=>sM(e.target.value)} min="5" step="5"/><input type="date" value={d} onChange={e=>sD(e.target.value)}/></div>{parseInt(m)>=120&&<div style={{fontFamily:'var(--mono)',fontSize:10,color:'var(--purple)',marginBottom:8}}>⚡ PROJECT — add sub-tasks after</div>}<div className="fbtns"><button className="fbtn fbtn-p" onClick={go}>add</button><button className="fbtn fbtn-s" onClick={onCancel}>cancel</button></div></div>);
 }
 
-function HatCard({hat,mode,dayStarted,onToggleTodo,onSelectTodo,onArchiveTodo,onAddTodo,onToggleSub,onSelectSub,onAddSub,onEditTodo,delay}){
+function HatCard({hat,mode,dayStarted,onToggleTodo,onSelectTodo,onArchiveTodo,onAddTodo,onToggleSub,onSelectSub,onAddSub,delay}){
   const[sf,sSf]=useState(false);
   return(<div className="hcard" style={{animationDelay:`${delay}s`}}><div className="hcard-hdr"><span className="hcard-name" style={{color:hat.color}}>{hat.name}</span><span className="hcard-cnt">{hat.todos.filter(t=>!t.done).length}</span></div>
-    {hat.todos.map(t=><TodoItem key={t.id} todo={t} hat={hat} mode={mode} dayStarted={dayStarted} onToggle={id=>onToggleTodo(hat.id,id)} onSelect={id=>onSelectTodo(hat.id,id)} onArchive={onArchiveTodo} onToggleSub={onToggleSub} onSelectSub={onSelectSub} onAddSub={onAddSub} onEdit={onEditTodo}/>)}
+    {hat.todos.map(t=><TodoItem key={t.id} todo={t} hat={hat} mode={mode} dayStarted={dayStarted} onToggle={id=>onToggleTodo(hat.id,id)} onSelect={id=>onSelectTodo(hat.id,id)} onArchive={onArchiveTodo} onToggleSub={onToggleSub} onSelectSub={onSelectSub} onAddSub={onAddSub}/>)}
     {sf?<AddTodoForm onAdd={t=>{onAddTodo(hat.id,t);sSf(false)}} onCancel={()=>sSf(false)}/>:<button className="addbtn" onClick={()=>sSf(true)}>+ add task</button>}</div>);
 }
 
@@ -335,47 +314,41 @@ function WindDown({hats,onConfirm}){
     <button className={`ulbtn ${ok?'ok':'no'}`} onClick={()=>ok&&onConfirm([...checked])}>{ok?"that's what I did today →":"check at least 1"}</button></div>);
 }
 
-function Archives({archives,onDelete}){
+function Archives({archives}){
   const now=new Date();const d7=new Date(now);d7.setDate(d7.getDate()-7);const d30=new Date(now);d30.setDate(d30.getDate()-30);
-  const tagged=[...archives].map((a,i)=>({...a,_idx:i}));
-  const l7=tagged.filter(a=>new Date(a.archivedDate)>=d7);const l30=tagged.filter(a=>new Date(a.archivedDate)>=d30);
+  const l7=archives.filter(a=>new Date(a.archivedDate)>=d7);const l30=archives.filter(a=>new Date(a.archivedDate)>=d30);
   const ot7=l7.filter(a=>a.onTime).length;const ot30=l30.filter(a=>a.onTime).length;
   const p7=l7.length>0?Math.round((ot7/l7.length)*100):0;const p30=l30.length>0?Math.round((ot30/l30.length)*100):0;
-  const sorted=[...tagged].reverse();const overdue=sorted.filter(a=>!a.onTime);const ontime=sorted.filter(a=>a.onTime);
+  const sorted=[...archives].reverse();const overdue=sorted.filter(a=>!a.onTime);const ontime=sorted.filter(a=>a.onTime);
   const maxTime=Math.max(...archives.map(a=>Math.max(a.minutes,Math.round((a.actualTime||a.timeSpent||0)/60),1)),1);
-  const card=(a,key)=>{const pl=a.minutes;const ac=a.actualTime!==null?Math.round(a.actualTime/60):(a.timeSpent>0?Math.round(a.timeSpent/60):null);const pW=Math.max((pl/maxTime)*100,4);const aW=ac!==null?Math.max((ac/maxTime)*100,4):0;
-    return(<div className="acard" key={key}><div className="acard-top"><div><div className="acard-name">{a.text}</div><div className="acard-dates"><span>planned {fmtDate(a.plannedDate)}</span><span>due {fmtDate(a.dueDate)}</span><span>done {fmtDate(a.archivedDate)}</span></div></div>
-      <div style={{display:'flex',gap:8,alignItems:'center'}}><span className="acard-hat" style={{color:a.hatColor}}>{a.hatName}</span>{a.onTime?<span className="ob ob-ok">ON TIME</span>:<span className="ob ob-late">LATE</span>}<button className="xbtn" title="Delete" onClick={()=>onDelete(a._idx)}>×</button></div></div>
+  const card=(a,i)=>{const pl=a.minutes;const ac=a.actualTime!==null?Math.round(a.actualTime/60):(a.timeSpent>0?Math.round(a.timeSpent/60):null);const pW=Math.max((pl/maxTime)*100,4);const aW=ac!==null?Math.max((ac/maxTime)*100,4):0;
+    return(<div className="acard" key={i}><div className="acard-top"><div><div className="acard-name">{a.text}</div><div className="acard-dates"><span>planned {fmtDate(a.plannedDate)}</span><span>due {fmtDate(a.dueDate)}</span><span>done {fmtDate(a.archivedDate)}</span></div></div><div style={{display:'flex',gap:8,alignItems:'center'}}><span className="acard-hat" style={{color:a.hatColor}}>{a.hatName}</span>{a.onTime?<span className="ob ob-ok">ON TIME</span>:<span className="ob ob-late">LATE</span>}</div></div>
       <div className="tc"><div className="tc-bars"><div className="tc-row"><span className="tc-lbl">plan</span><div className="tc-track"><div className="tc-fill" style={{width:`${pW}%`,background:'var(--amber)'}}/></div><span className="tc-val">{fmtMins(pl)}</span></div>{ac!==null&&<div className="tc-row"><span className="tc-lbl">actual</span><div className="tc-track"><div className="tc-fill" style={{width:`${aW}%`,background:ac<=pl?'var(--green)':'var(--red)'}}/></div><span className="tc-val" style={{color:ac<=pl?'var(--green)':'var(--red)'}}>{fmtMins(ac)}</span></div>}</div>{ac!==null&&<div className="tc-icon"><div className="tc-emoji">{ac<=pl?'⚡':'🐌'}</div><div className="tc-diff">{ac<=pl?`${fmtMins(pl-ac)} saved`:`${fmtMins(ac-pl)} over`}</div></div>}</div></div>)};
   return(<div className="arc"><div className="arc-scores"><div className="sc" style={{animationDelay:'0s'}}><div className="sc-big" style={{color:'var(--green)'}}>{p7}%</div><div className="sc-lbl">on-time · 7d</div><div className="sc-sub">{ot7}/{l7.length}</div></div><div className="sc" style={{animationDelay:'.1s'}}><div className="sc-big" style={{color:'var(--cyan)'}}>{p30}%</div><div className="sc-lbl">on-time · 30d</div><div className="sc-sub">{ot30}/{l30.length}</div></div><div className="sc" style={{animationDelay:'.2s'}}><div className="sc-big" style={{color:'var(--amber)'}}>{archives.length}</div><div className="sc-lbl">total archived</div></div></div>
     {archives.length===0?<div className="arc-empty">// no archived tasks yet</div>:(<>{overdue.length>0&&<><div className="arc-sec" style={{color:'var(--red)'}}>▲ deadline elapsed <span className="cnt">({overdue.length})</span></div>{overdue.map((a,i)=>card(a,'o'+i))}</>}{ontime.length>0&&<><div className="arc-sec" style={{color:'var(--green)'}}>✓ delivered on time <span className="cnt">({ontime.length})</span></div>{ontime.map((a,i)=>card(a,'g'+i))}</>}</>)}</div>);
 }
 
-// ─── Main App ───
+// ─── Main App with Auth ───
 export default function Flowlist(){
-  const[authState,setAuthState]=useState('loading');
+  const[authState,setAuthState]=useState('loading'); // loading | login | signup | app
   const[user,setUser]=useState(null);
   const[email,setEmail]=useState('');const[password,setPassword]=useState('');const[displayName,setDisplayName]=useState('');
   const[authError,setAuthError]=useState('');const[authLoading,setAuthLoading]=useState(false);
   const[logoLoadFailed,setLogoLoadFailed]=useState(false);
-  const[showReset,setShowReset]=useState(false);const[resetEmail,setResetEmail]=useState('');const[resetSent,setResetSent]=useState(false);
 
   const[hats,setHats]=useState(DEFAULT_HATS);
   const[archives,setArchives]=useState([]);
   const[view,setView]=useState("plan");
   const[showAddHat,setShowAddHat]=useState(false);const[newHatName,setNewHatName]=useState("");
-
-  // dayState: not_started | active | wind_down | wound_down
-  // wound_down = day wrapped same-day; app stays usable; resets to not_started at midnight
   const[dayState,setDayState]=useState("not_started");
   const[dayStartTime,setDayStartTime]=useState(null);
   const[dayDate,setDayDate]=useState(todayStr());
   const[pickerOpen,setPickerOpen]=useState(false);
-  const[saveStatus,setSaveStatus]=useState('saved');
+  const[saveStatus,setSaveStatus]=useState('saved'); // saved | saving | error
   const saveTimer=useRef(null);
   const[loaded,setLoaded]=useState(false);
 
-  // ─── Auth ───
+  // ─── Auth check on mount ───
   useEffect(()=>{
     const unsubscribe=onAuthStateChanged(auth,(firebaseUser)=>{
       if(firebaseUser){
@@ -423,31 +396,8 @@ export default function Flowlist(){
     return()=>{if(saveTimer.current)clearTimeout(saveTimer.current)};
   },[hats,archives,dayState,dayStartTime,dayDate,doSave]);
 
-  // ─── Day transition logic (runs every 10s) ───
-  //
-  // If date has rolled over to a new day:
-  //   active      → force wind_down (must wrap yesterday before planning today)
-  //   wound_down  → reset to not_started (yesterday was properly wound down)
-  //   locked      → reset to not_started (legacy state, treat same as wound_down)
-  //   not_started → just update the stored date
-  useEffect(()=>{
-    if(!user)return;
-    const check=()=>{
-      const today=todayStr();
-      if(dayDate!==today){
-        if(dayState==='active'){
-          setDayState('wind_down');
-        } else {
-          setDayState('not_started');
-          setDayDate(today);
-        }
-      }
-    };
-    check();
-    const iv=setInterval(check,10000);
-    return()=>clearInterval(iv);
-  },[user,dayState,dayDate]);
-
+  // Day transitions
+  useEffect(()=>{if(!user)return;const check=()=>{const today=todayStr();if(dayDate!==today&&dayState==='active'){setDayState('wind_down')}if(dayState==='locked'&&dayDate!==today){setDayState('not_started');setDayDate(today)}};check();const iv=setInterval(check,10000);return()=>clearInterval(iv)},[user,dayState,dayDate]);
   useEffect(()=>{if(!pickerOpen)return;const cl=()=>setPickerOpen(false);document.addEventListener('click',cl);return()=>document.removeEventListener('click',cl)},[pickerOpen]);
 
   // ─── Auth handlers ───
@@ -475,47 +425,19 @@ export default function Flowlist(){
     }
   }
   async function handleSignOut(){await firebaseSignOut(auth)}
-  async function handleResetPassword(){
-    setAuthError('');
-    try{
-      await sendPasswordResetEmail(auth,resetEmail);
-      setResetSent(true);
-    }catch(e){
-      setAuthError(e.message||'Could not send reset email. Check the address and try again.');
-    }
-  }
 
   // ─── Data mutations ───
   const toggleTodo=(hid,tid)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===tid?{...t,done:!t.done}:t)}:h))};
   const selectTodo=(hid,tid)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===tid?{...t,selectedToday:!t.selectedToday}:t)}:h))};
   const selectSubTodo=(hid,tid,sid)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===tid?{...t,subTodos:t.subTodos.map(s=>s.id===sid?{...s,selectedToday:!s.selectedToday}:s)}:t)}:h))};
   const archiveTodo=(hid,tid)=>{const hat=hats.find(h=>h.id===hid);const todo=hat?.todos.find(t=>t.id===tid);if(!todo)return;setArchives(p=>[...p,{text:todo.text,hatName:hat.name,hatColor:hat.color,minutes:todo.minutes,plannedDate:dayDate,dueDate:todo.dueDate,archivedDate:todayStr(),onTime:todayStr()<=todo.dueDate,timeSpent:todo.timeSpent,actualTime:todo.actualTime}]);setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.filter(t=>t.id!==tid)}:h))};
-  const deleteArchive=(idx)=>{setArchives(p=>p.filter((_,i)=>i!==idx))};
   const addTodo=(hid,todo)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:[...h.todos,todo]}:h))};
-  const editTodo=(hid,tid,newText)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===tid?{...t,text:newText}:t)}:h))};
   const toggleSubTodo=(hid,tid,sid)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===tid?{...t,subTodos:t.subTodos.map(s=>s.id===sid?{...s,done:!s.done}:s)}:t)}:h))};
   const addSubTodo=(hid,tid,sub)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===tid?{...t,subTodos:[...t.subTodos,sub]}:t)}:h))};
   const finishTask=(hid,parentId,taskId,totalSec)=>{setHats(p=>p.map(h=>{if(h.id!==hid)return h;return{...h,todos:h.todos.map(t=>{if(parentId&&t.id===parentId)return{...t,subTodos:t.subTodos.map(s=>s.id===taskId?{...s,done:true,timeSpent:totalSec,actualTime:totalSec}:s)};if(!parentId&&t.id===taskId)return{...t,done:true,timeSpent:totalSec,actualTime:totalSec};return t})}}))};
   const revisitTask=(hid,parentId,taskId,addedSec)=>{setHats(p=>p.map(h=>{if(h.id!==hid)return h;return{...h,todos:h.todos.map(t=>{if(parentId&&t.id===parentId)return{...t,subTodos:t.subTodos.map(s=>s.id===taskId?{...s,timeSpent:s.timeSpent+addedSec}:s)};if(!parentId&&t.id===taskId)return{...t,timeSpent:t.timeSpent+addedSec};return t})}}))};
   const addHat=()=>{if(!newHatName.trim())return;setHats(p=>[...p,{id:"hat_"+Date.now(),name:newHatName.trim().toUpperCase(),color:COLORS[p.length%COLORS.length],todos:[]}]);setNewHatName("");setShowAddHat(false)};
-
-  // ─── Wind down confirm ───
-  // Same-day wind down  → wound_down (app stays open, no lock screen)
-  // Forced wind down (day already changed) → not_started (fresh start today)
-  const handleWindDownConfirm=(completedIds)=>{
-    setHats(p=>p.map(h=>({...h,todos:h.todos.map(t=>{
-      const updated=completedIds.includes(t.id)?{...t,done:true}:t;
-      return{...updated,selectedToday:false,subTodos:updated.subTodos.map(s=>({...s,...(completedIds.includes(s.id)?{done:true}:{}),selectedToday:false}))};
-    })})));
-    const today=todayStr();
-    if(dayDate===today){
-      setDayState('wound_down');
-    } else {
-      setDayState('not_started');
-      setDayDate(today);
-    }
-  };
-
+  const handleWindDownConfirm=(completedIds)=>{setHats(p=>p.map(h=>({...h,todos:h.todos.map(t=>{const updated=completedIds.includes(t.id)?{...t,done:true}:t;return{...updated,selectedToday:false,subTodos:updated.subTodos.map(s=>({...s,...(completedIds.includes(s.id)?{done:true}:{}),selectedToday:false}))}})})));setDayState('locked');if(todayStr()!==dayDate){setDayState('not_started');setDayDate(todayStr())}};
   const startDay=()=>{setDayStartTime(new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}));setDayDate(todayStr());setDayState('active');setView('plan')};
   const pickTask=(hid,parentId,taskId,isSubTask)=>{if(isSubTask&&parentId){setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===parentId?{...t,subTodos:t.subTodos.map(s=>s.id===taskId?{...s,selectedToday:true}:s)}:t)}:h))}else{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===taskId?{...t,selectedToday:true}:t)}:h))}setView('work')};
 
@@ -524,10 +446,10 @@ export default function Flowlist(){
   const tPend=hats.reduce((s,h)=>s+h.todos.filter(t=>!t.done).length,0);
 
   // ─── Render ───
-  if(authState==='loading')return(<><style dangerouslySetInnerHTML={{__html:CSS}}/><div className="app"><div className="cg1"/><div className="cg2"/><div className="scanline"/><div className="auth"><div className="auth-loading">// loading...</div></div></div></>);
+  if(authState==='loading')return(<><style dangerouslySetInnerHTML={{ __html: CSS }} /><div className="app"><div className="cg1"/><div className="cg2"/><div className="scanline"/><div className="auth"><div className="auth-loading">// loading...</div></div></div></>);
 
   if(authState==='login'||authState==='signup')return(
-    <><style dangerouslySetInnerHTML={{__html:CSS}}/>
+    <><style dangerouslySetInnerHTML={{ __html: CSS }} />
     <div className="app"><div className="cg1"/><div className="cg2"/><div className="scanline"/>
       <div className="auth"><div className="auth-card">
         <div className="auth-brand">
@@ -535,44 +457,26 @@ export default function Flowlist(){
           <div className="auth-logo">{BRAND_NAME}</div>
         </div>
         <div className="auth-tag">{BRAND_TAGLINE}</div>
-        {authState==='login'&&showReset?(
-          resetSent
-            ?<div className="auth-ok">// reset email sent. check your inbox.</div>
-            :<>
-              <input className="auth-in" placeholder="your email address" value={resetEmail} onChange={e=>setResetEmail(e.target.value)} onKeyDown={e=>e.key==='Enter'&&handleResetPassword()}/>
-              {authError&&<div className="auth-err">{authError}</div>}
-              <button className="auth-go" onClick={handleResetPassword}>send reset email →</button>
-              <div className="auth-switch"><button onClick={()=>{setShowReset(false);setAuthError('');setResetSent(false)}}>← back to sign in</button></div>
-            </>
-        ):(
-          <>
-            {authState==='signup'&&<input className="auth-in" placeholder="your name" value={displayName} onChange={e=>setDisplayName(e.target.value)}/>}
-            <input className="auth-in" placeholder="email" type="email" value={email} onChange={e=>setEmail(e.target.value)}/>
-            <input className="auth-in" placeholder="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==='Enter'&&(authState==='login'?handleSignIn():handleSignUp())}/>
-            {authError&&<div className="auth-err">{authError}</div>}
-            <button className="auth-go" onClick={authState==='login'?handleSignIn:handleSignUp} disabled={authLoading}>
-              {authLoading?'// processing...':authState==='login'?'sign in →':'create account →'}
-            </button>
-            <div className="auth-switch">
-              {authState==='login'
-                ?<>new here? <button onClick={()=>{setAuthState('signup');setAuthError('')}}>create account</button></>
-                :<>have an account? <button onClick={()=>{setAuthState('login');setAuthError('')}}>sign in</button></>}
-            </div>
-            {authState==='login'&&<div className="auth-switch" style={{marginTop:6}}><button onClick={()=>{setShowReset(true);setResetEmail(email);setAuthError('')}}>forgot password?</button></div>}
-          </>
-        )}
+        {authState==='signup'&&<input className="auth-in" placeholder="your name" value={displayName} onChange={e=>setDisplayName(e.target.value)}/>}
+        <input className="auth-in" placeholder="email" type="email" value={email} onChange={e=>setEmail(e.target.value)}/>
+        <input className="auth-in" placeholder="password" type="password" value={password} onChange={e=>setPassword(e.target.value)} onKeyDown={e=>e.key==='Enter'&&(authState==='login'?handleSignIn():handleSignUp())}/>
+        {authError&&<div className="auth-err">{authError}</div>}
+        <button className="auth-go" onClick={authState==='login'?handleSignIn:handleSignUp} disabled={authLoading}>
+          {authLoading?'// processing...':authState==='login'?'sign in →':'create account →'}
+        </button>
+        <div className="auth-switch">{authState==='login'?<>new here? <button onClick={()=>{setAuthState('signup');setAuthError('')}}>create account</button></>:<>have an account? <button onClick={()=>{setAuthState('login');setAuthError('')}}>sign in</button></>}</div>
       </div></div>
     </div></>
   );
 
-  // wind_down is a full-screen takeover
-  if(dayState==='wind_down')return(<><style dangerouslySetInnerHTML={{__html:CSS}}/><WindDown hats={hats} onConfirm={handleWindDownConfirm}/></>);
-
   const userName=user?.displayName||user?.email?.split('@')[0]||'user';
-  const hr=new Date().getHours();const greet=hr<12?"morning":hr<17?"afternoon":"evening";
-  const dayActive=dayState==='active'||dayState==='wound_down';
 
-  return(<><style dangerouslySetInnerHTML={{__html:CSS}}/>
+  if(dayState==='wind_down')return(<><style dangerouslySetInnerHTML={{ __html: CSS }} /><WindDown hats={hats} onConfirm={handleWindDownConfirm}/></>);
+  if(dayState==='locked')return(<><style dangerouslySetInnerHTML={{ __html: CSS }} /><div className="lock"><div className="cg1"/><div className="cg2"/><div className="scanline"/><div className="lock-icon">😴</div><div className="lock-t">// day_logged</div><div className="lock-s">Session recorded. System unlocks tomorrow.</div><button className="ulbtn ok" style={{marginTop:28}} onClick={()=>{setDayState('not_started');setDayDate(todayStr())}}>skip to morning (demo) →</button></div></>);
+
+  const hr=new Date().getHours();const greet=hr<12?"morning":hr<17?"afternoon":"evening";
+
+  return(<><style dangerouslySetInnerHTML={{ __html: CSS }} />
     <div className="app"><div className="cg1"/><div className="cg2"/><div className="scanline"/>
       <div className="wrap">
         <div className="hdr">
@@ -583,47 +487,23 @@ export default function Flowlist(){
           <div className="nav">
             <div className="tabs">
               <button className={`tab ${view==='plan'?'on':''}`} onClick={()=>setView('plan')}>plan</button>
-              <button className={`tab ${view==='work'?'on':''}`} onClick={()=>setView('work')} disabled={!dayActive}>work</button>
+              <button className={`tab ${view==='work'?'on':''}`} onClick={()=>setView('work')} disabled={dayState!=='active'}>work</button>
               <button className={`tab ${view==='archives'?'on':''}`} onClick={()=>setView('archives')}>archives</button>
             </div>
-            {dayState==='active'&&<>
-              <div className="pkwrap" onClick={e=>e.stopPropagation()}>
-                <button className="ibtn" onClick={()=>setPickerOpen(p=>!p)}>📋 pick</button>
-                {pickerOpen&&<TaskPicker hats={hats} onPick={pickTask} onClose={()=>setPickerOpen(false)}/>}
-              </div>
-              <button className="ibtn" onClick={()=>setDayState('wind_down')}>🌙 wind down</button>
-            </>}
-            {dayState==='wound_down'&&<span className="wdc">✓ day complete</span>}
+            {dayState==='active'&&<><div className="pkwrap" onClick={e=>e.stopPropagation()}><button className="ibtn" onClick={()=>setPickerOpen(p=>!p)}>📋 pick</button>{pickerOpen&&<TaskPicker hats={hats} onPick={pickTask} onClose={()=>setPickerOpen(false)}/>}</div><button className="ibtn" onClick={()=>setDayState('wind_down')}>🌙 wind down</button></>}
             <button className="signout-btn" onClick={handleSignOut}>sign out</button>
           </div>
         </div>
 
-        {dayState==='not_started'&&(
-          <><div className="startb"><h2>// good {greet}, {userName}</h2><p>new session awaits. initialize your day.</p><button className="gobtn" onClick={startDay}>start my day →</button></div>
-          <button className={`tab ${view==='archives'?'on':''}`} onClick={()=>setView(view==='archives'?'plan':'archives')} style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:6,marginBottom:16}}>{view==='archives'?'hide':'view'} archives</button>
-          {view==='archives'&&<Archives archives={archives} onDelete={deleteArchive}/>}</>
-        )}
+        {dayState==='not_started'&&<><div className="startb"><h2>// good {greet}, {userName}</h2><p>new session awaits. initialize your day.</p><button className="gobtn" onClick={startDay}>start my day →</button></div><button className={`tab ${view==='archives'?'on':''}`} onClick={()=>setView(view==='archives'?'plan':'archives')} style={{background:'var(--bg2)',border:'1px solid var(--border)',borderRadius:6,marginBottom:16}}>{view==='archives'?'hide':'view'} archives</button>{view==='archives'&&<Archives archives={archives}/>}</>}
 
-        {dayActive&&(
-          <><div className="greet">// {greet}, {userName}</div>
-          <div className="sgreet">
-            {view==='plan'
-              ?<>{dayState==='wound_down'?'day wrapped. tasks carry over tomorrow.':'plan your day.'}{dayStartTime&&<> started <span className="ts">{dayStartTime}</span></>}</>
-              :view==='work'?'deep focus.':'tracked and scored.'}
-          </div>
-          {view==='plan'&&<>
-            <div className="summary">
-              <div><div className="stn" style={{color:'var(--amber)'}}>{tCount}</div><div className="stl">today</div></div>
-              <div><div className="stn" style={{color:'var(--green)'}}>{tMins<60?`${tMins}m`:`${(tMins/60).toFixed(1)}h`}</div><div className="stl">estimated</div></div>
-              <div><div className="stn" style={{color:'var(--cyan)'}}>{tPend}</div><div className="stl">pending</div></div>
-            </div>
-            <div className="hgrid">{hats.map((h,i)=><HatCard key={h.id} hat={h} mode="plan" dayStarted={dayState==='active'} onToggleTodo={toggleTodo} onSelectTodo={selectTodo} onArchiveTodo={archiveTodo} onAddTodo={addTodo} onToggleSub={toggleSubTodo} onSelectSub={selectSubTodo} onAddSub={addSubTodo} onEditTodo={editTodo} delay={.08+i*.08}/>)}</div>
-            <div className="ahsec">{showAddHat?<div className="ahform"><input placeholder="hat name" value={newHatName} onChange={e=>setNewHatName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addHat()} autoFocus/><button className="fbtn fbtn-p" onClick={addHat}>add</button><button className="fbtn fbtn-s" onClick={()=>setShowAddHat(false)}>cancel</button></div>:<button className="ahbtn" onClick={()=>setShowAddHat(true)}>+ add hat</button>}</div>
-          </>}
+        {dayState==='active'&&<><div className="greet">// {greet}, {userName}</div><div className="sgreet">{view==='plan'?<>plan your day.{dayStartTime&&<> started <span className="ts">{dayStartTime}</span></>}</>:view==='work'?'deep focus.':'tracked and scored.'}</div>
+          {view==='plan'&&<><div className="summary"><div><div className="stn" style={{color:'var(--amber)'}}>{tCount}</div><div className="stl">today</div></div><div><div className="stn" style={{color:'var(--green)'}}>{tMins<60?`${tMins}m`:`${(tMins/60).toFixed(1)}h`}</div><div className="stl">estimated</div></div><div><div className="stn" style={{color:'var(--cyan)'}}>{tPend}</div><div className="stl">pending</div></div></div>
+            <div className="hgrid">{hats.map((h,i)=><HatCard key={h.id} hat={h} mode="plan" dayStarted={true} onToggleTodo={toggleTodo} onSelectTodo={selectTodo} onArchiveTodo={archiveTodo} onAddTodo={addTodo} onToggleSub={toggleSubTodo} onSelectSub={selectSubTodo} onAddSub={addSubTodo} delay={.08+i*.08}/>)}</div>
+            <div className="ahsec">{showAddHat?<div className="ahform"><input placeholder="hat name" value={newHatName} onChange={e=>setNewHatName(e.target.value)} onKeyDown={e=>e.key==='Enter'&&addHat()} autoFocus/><button className="fbtn fbtn-p" onClick={addHat}>add</button><button className="fbtn fbtn-s" onClick={()=>setShowAddHat(false)}>cancel</button></div>:<button className="ahbtn" onClick={()=>setShowAddHat(true)}>+ add hat</button>}</div></>}
           {view==='work'&&<WorkMode hats={hats} onFinishTask={finishTask} onRevisitTask={revisitTask}/>}
-          {view==='archives'&&<Archives archives={archives} onDelete={deleteArchive}/>}
-          </>
-        )}
+          {view==='archives'&&<Archives archives={archives}/>}
+        </>}
       </div>
     </div></>);
 }
