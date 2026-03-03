@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
+import { auth } from '../lib/firebase';
+import { onAuthStateChanged, createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut as firebaseSignOut, updateProfile } from 'firebase/auth';
 import { saveAppState, loadAppState } from '../lib/db';
 
 // ─── Helpers ───
@@ -349,20 +350,18 @@ export default function Flowlist(){
 
   // ─── Auth check on mount ───
   useEffect(()=>{
-    supabase.auth.getSession().then(({data:{session}})=>{
-      if(session?.user){
-        setUser(session.user);
+    const unsubscribe=onAuthStateChanged(auth,(firebaseUser)=>{
+      if(firebaseUser){
+        setUser(firebaseUser);
         setAuthState('app');
-        loadData(session.user.id);
+        loadData(firebaseUser.uid);
       } else {
+        setUser(null);
         setAuthState('login');
+        setHats(DEFAULT_HATS);setArchives([]);setDayState('not_started');setLoaded(false);
       }
     });
-    const{data:{subscription}}=supabase.auth.onAuthStateChange((event,session)=>{
-      if(event==='SIGNED_IN'&&session?.user){setUser(session.user);setAuthState('app');loadData(session.user.id)}
-      if(event==='SIGNED_OUT'){setUser(null);setAuthState('login');setHats(DEFAULT_HATS);setArchives([]);setDayState('not_started');setLoaded(false)}
-    });
-    return()=>subscription.unsubscribe();
+    return()=>unsubscribe();
   },[]);
 
   // ─── Load data ───
@@ -385,7 +384,7 @@ export default function Flowlist(){
     if(!user||!loaded)return;
     setSaveStatus('saving');
     try{
-      await saveAppState(user.id,{hats,archives,dayState,dayStartTime,dayDate});
+      await saveAppState(user.uid,{hats,archives,dayState,dayStartTime,dayDate});
       setSaveStatus('saved');
     }catch(e){console.error('Save error:',e);setSaveStatus('error')}
   },[user,hats,archives,dayState,dayStartTime,dayDate,loaded]);
@@ -405,11 +404,8 @@ export default function Flowlist(){
   async function handleSignUp(){
     setAuthError('');setAuthLoading(true);
     try{
-      const{data,error}=await supabase.auth.signUp({email,password,options:{data:{display_name:displayName}}});
-      if(error)throw error;
-      if(data?.user&&!data?.session){
-        setAuthError('Account created! Check your email to confirm, then sign in.');
-      }
+      const userCredential=await createUserWithEmailAndPassword(auth,email,password);
+      await updateProfile(userCredential.user,{displayName});
       setAuthLoading(false);
     }catch(e){
       console.error('Signup error:',e);
@@ -420,8 +416,7 @@ export default function Flowlist(){
   async function handleSignIn(){
     setAuthError('');setAuthLoading(true);
     try{
-      const{data,error}=await supabase.auth.signInWithPassword({email,password});
-      if(error)throw error;
+      await signInWithEmailAndPassword(auth,email,password);
       setAuthLoading(false);
     }catch(e){
       console.error('Signin error:',e);
@@ -429,7 +424,7 @@ export default function Flowlist(){
       setAuthLoading(false);
     }
   }
-  async function handleSignOut(){await supabase.auth.signOut()}
+  async function handleSignOut(){await firebaseSignOut(auth)}
 
   // ─── Data mutations ───
   const toggleTodo=(hid,tid)=>{setHats(p=>p.map(h=>h.id===hid?{...h,todos:h.todos.map(t=>t.id===tid?{...t,done:!t.done}:t)}:h))};
@@ -474,7 +469,7 @@ export default function Flowlist(){
     </div></>
   );
 
-  const userName=user?.user_metadata?.display_name||user?.email?.split('@')[0]||'user';
+  const userName=user?.displayName||user?.email?.split('@')[0]||'user';
 
   if(dayState==='wind_down')return(<><style dangerouslySetInnerHTML={{ __html: CSS }} /><WindDown hats={hats} onConfirm={handleWindDownConfirm}/></>);
   if(dayState==='locked')return(<><style dangerouslySetInnerHTML={{ __html: CSS }} /><div className="lock"><div className="cg1"/><div className="cg2"/><div className="scanline"/><div className="lock-icon">😴</div><div className="lock-t">// day_logged</div><div className="lock-s">Session recorded. System unlocks tomorrow.</div><button className="ulbtn ok" style={{marginTop:28}} onClick={()=>{setDayState('not_started');setDayDate(todayStr())}}>skip to morning (demo) →</button></div></>);
